@@ -48,7 +48,7 @@ class RNNExperiment(Experiment):
         model.add(Dense(units=units, activation='tanh'))
         model.add(Dense(units=units, activation='tanh'))
         model.add(TimeDistributed(Flatten()))
-        model.add(LSTM(units=64, activation='tanh', return_sequences=True))
+        model.add(LSTM(units=units, activation='tanh', return_sequences=True))
         model.add(Dense(units=output_units, activation='linear'))
         model.compile(optimizer='adam', loss='mse', metrics=['accuracy'])
 
@@ -78,13 +78,11 @@ class RNNExperiment(Experiment):
         modules['spatial_representation'].set_visual_debugging(self._visual_output, main_window)
         modules['rl_interface'] = InterfaceBaseline(modules, self._visual_output, self.reward_callback)
 
-        number_of_trials = self.trials  # amount of trials
-        max_steps = self.max_steps  # maximum steps per trial
         time_horizon = self.max_steps  # how many steps are given to the network
 
         # initialize monitors
-        reward_monitor = RewardMonitor(number_of_trials, main_window, self._visual_output, [-30, 10])
-        escape_latency_monitor = EscapeLatencyMonitor(number_of_trials, max_steps, main_window, self._visual_output)
+        reward_monitor = RewardMonitor(self.trials, main_window, self._visual_output, [-self.max_steps, self.reward])
+        escape_latency_monitor = EscapeLatencyMonitor(self.trials, self.max_steps, main_window, self._visual_output)
 
         # prepare custom_callbacks
         custom_callbacks = {'on_trial_end': [reward_monitor.update, escape_latency_monitor.update,
@@ -105,18 +103,19 @@ class RNNExperiment(Experiment):
         modules['spatial_representation'].rl_agent = rl_agent
 
         # let the agent learn, with extremely large number of allowed maximum steps
-        rl_agent.train(number_of_trials, max_steps)
+        rl_agent.train(self.trials, self.max_steps)
 
         # Recording results
         result = {
             "reward_mse": self.calc_mse(reward_monitor.reward_trace, self.target),
-            "reward_trace_av": np.mean(reward_monitor.reward_trace),
             "reward_trace": reward_monitor.reward_trace,
+            "reward_trace_av": np.mean(reward_monitor.reward_trace),
             "latency_traces": escape_latency_monitor.latency_trace,
             "latency_traces_av": np.mean(escape_latency_monitor.latency_trace)
         }
         result["reward_mse_norm"] = 1 - (result["reward_mse"] / (self.worst_case ** 2))
         result["reward_var"] = self.calc_variance(reward_monitor.reward_trace, result["reward_trace_av"])
+        result["reward_error"] = 1 - (np.sqrt(result["reward_mse"]) / self.worst_case)
 
         # Todo
         # outputs = [layer.output for layer in model.model.layers]

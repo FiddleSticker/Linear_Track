@@ -2,43 +2,51 @@ import sys
 import os
 import time
 import datetime
+import argparse
 
 import constants as c
-from Agents.rnn_experiment import RNNExperiment
-from Agents.ffn_experiment import FFNExperiment
 
 if __name__ == "__main__":
-    network = None
-    runs = 0
-    size = 0
-    path_prefix = ""
+    parser = argparse.ArgumentParser()
+    parser.add_argument("network_type", type=str, choices=["random", "ffn", "rnn", "lstm"], metavar="network_type",
+                        help="type of network to run the experiment with. Available networks: random, ffn, rnn, lstm")
+    parser.add_argument("length", type=int, help="Length of the linear track")
+    parser.add_argument("-r", "--runs", type=int, default=c.RUNS_DEFAULT, metavar="",
+                        help=f"number of repetitions of experiment (Default = {c.RUNS_DEFAULT})")
+    parser.add_argument("-t", "--trials", type=int, default=c.TRIALS_DEFAULT, metavar="",
+                        help=f"number of trials per run. Default = {c.TRIALS_DEFAULT}")
+    parser.add_argument("-p", "--path", type=str, metavar="", default=None,
+                        help="path to which experiment results are written")
+    parser.add_argument("--memory", default=True, action="store_true",
+                        help="run memory experiment (Default = True)")
+    parser.add_argument("--no-memory", dest="memory", action="store_false",
+                        help="run simple experiment")
+    args = parser.parse_args()
 
-    for arg in sys.argv[1:]:
-        if arg == "-f":
-            network = "ffn"
-        elif arg == "-r":
-            network = "rnn"
-        elif (size_arg := "--size=") in arg:
-            size = int(arg.replace(size_arg, ""))
-        elif (runs_arg := "--runs=") in arg:
-            runs = int(arg.replace(runs_arg, ""))
-        elif (path_prefix_arg := "--path-prefix=") in arg:
-            path_prefix = str(arg.replace(path_prefix_arg, "")) + "_"
-        else:
-            raise TypeError(f"UNRECOGNIZED ARGUMENT: {arg}")
+    network = args.network_type
+    length = args.length
+    runs = args.runs
+    trials = args.trials
+    save_path = args.path
 
-    if network == "ffn":
-        demo_scene = os.path.join(c.PATH_DATA, f"linear_track_1x{size}")
-        exp = FFNExperiment(demo_scene, size, visual_output=False)
-    elif network == "rnn":
-        demo_scene = os.path.join(c.PATH_DATA, f"linear_track_1x{size}")
-        exp = RNNExperiment(demo_scene, size, visual_output=False)
+    from Agents.rnn_experiment import RNNExperiment
+    from Agents.ffn_experiment import FFNExperiment
+
+    if network in ["random", "ffn"]:
+        demo_scene = os.path.join(c.PATH_DATA, f"linear_track_1x{length}")
+        exp = FFNExperiment(demo_scene, length, trials=trials)
+    elif network in ["rnn", "lstm"]:
+        demo_scene = os.path.join(c.PATH_DATA, f"linear_track_1x{length}")
+        exp = RNNExperiment(demo_scene, length, trials=trials)
     else:
         raise TypeError("No network type given")
 
     start_time = time.time()
     print(f"--- start: {datetime.datetime.now()} ---")
     print(exp.run(runs))  # Runs experiment and prints result
-    # print(exp.save(os.path.join(c.PATH_DATA, f"{path_prefix}{network}_linear_track_1x{size}.pkl")))
-    print(f"--- {time.time() - start_time} seconds ---")
 
+    if not save_path:
+        save_path = f"{network}_linear_track_1x{length}.pkl"
+    print(exp.save(os.path.join(c.PATH_DATA, save_path)))
+
+    print(f"--- {time.time() - start_time} seconds ---")

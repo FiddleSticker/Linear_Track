@@ -5,21 +5,26 @@ import pickle
 from abc import ABC
 import numpy as np
 
+import constants as c
+
 
 class Experiment(ABC):
-    def __init__(self, demo_scene: str, length: int, trials: int = 100, illuminate: bool = False,
-                 visual_output: bool = True):
+    def __init__(self, demo_scene: str, length: int, trials: int = c.TRIALS_DEFAULT, illuminate: bool = False):
         # Experiment Parameters
         self.demo_scene = demo_scene
         self.length = length
         self.trials = trials
-        self.target = 10 - 2 * self.length + 3
-        # self.target = 10 - self.length + 2
+        self.reward = 1000
+        self.penalty = 1
         self.max_steps = self.length ** 2  # 30
-        self.worst_case = np.abs(self.target - (-self.max_steps))
+        self.target = self.reward - self.penalty * (2 * self.length - 3)
+        self.worst_case = np.abs(self.target - self.penalty * (-self.max_steps))  # maximum difference to target
+        self.max_min = self.penalty * self.max_steps
+        self.max_diff = np.abs(self.target - self.penalty * (-self.max_steps))
 
         self.illuminate = illuminate
-        self._visual_output = visual_output
+        self._visual_output = False
+        self.trajectory = []
 
         self.modules = {}
         self._reached_end = False
@@ -40,19 +45,16 @@ class Experiment(ABC):
         | values:                       A dict of values that are transferred from the OAI module to the reward function.
         This is flexible enough to accommodate for different experimental setups.
         """
-        reward = -1.0  # the standard reward for each step taken is negative, making the agent seek short routes
+        reward = -self.penalty  # the standard reward for each step taken is negative, making the agent seek short routes
         end_trial = False
 
-        if values['current_node'].goal_node:
-            # reward = 10.0
-            # end_trial = True
+        self.trajectory.append(values['current_node'].index)
 
+        if values['current_node'].goal_node:
             self._reached_end = True
-            # if self.illuminate:
-            #     values["modules"]["world"].setIllumination("Sun", [1, 0, 0])
 
         if self._reached_end and values['current_node'].start_node:
-            reward = 10.0
+            reward = self.reward
             end_trial = True
             self.reset_world(values["modules"]["world"])
 
@@ -60,8 +62,8 @@ class Experiment(ABC):
 
     def reset_world(self, world):
         self._reached_end = False
-        # if self.illuminate:
-        #     world.setIllumination("Sun", 3 * [1])
+        self.trajectory = []
+
 
     @staticmethod
     def calc_mse(x, y) -> float:
@@ -92,6 +94,8 @@ class Experiment(ABC):
         for key, item in results.items():
             results_avg[f"{key}_avg"] = np.mean(item)
         results.update(results_avg)
+        results["target"] = self.target
+        results["worst_case"] = self.worst_case
 
         self._cached_results = results
         return results

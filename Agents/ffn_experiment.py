@@ -77,7 +77,7 @@ class FFNExperiment(Experiment):
         modules['rl_interface'] = InterfaceBaseline(modules, self._visual_output, self.reward_callback)
 
         # initialize monitors
-        reward_monitor = RewardMonitor(self.trials, main_window, self._visual_output, [-16, 10])
+        reward_monitor = RewardMonitor(self.trials, main_window, self._visual_output, [-self.max_steps, self.reward])
         escape_latency_monitor = EscapeLatencyMonitor(self.trials, self.max_steps, main_window, self._visual_output)
 
         # prepare custom_callbacks
@@ -90,8 +90,8 @@ class FFNExperiment(Experiment):
         model = self.build_model(modules['rl_interface'].observation_space.shape, 2)
 
         # initialize RL agent
-        rl_agent = DQNAgentBaseline(modules['rl_interface'], 1000000, 0.3, None, custom_callbacks=custom_callbacks)
-        # rl_agent = DQNAgentBaseline(modules['rl_interface'], 1000000, 1, None, custom_callbacks=custom_callbacks)
+        # rl_agent = DQNAgentBaseline(modules['rl_interface'], 1000000, 0.3, model, custom_callbacks=custom_callbacks)
+        rl_agent = DQNAgentBaseline(modules['rl_interface'], 1000000, 1, model, custom_callbacks=custom_callbacks)
 
         # eventually, allow the OAI class to access the robotic agent class
         modules['rl_interface'].rl_agent = rl_agent
@@ -105,13 +105,14 @@ class FFNExperiment(Experiment):
         # Recording results
         result = {
             "reward_mse": self.calc_mse(reward_monitor.reward_trace, self.target),
-            "reward_trace_av": np.mean(reward_monitor.reward_trace),
             "reward_trace": reward_monitor.reward_trace,
+            "reward_trace_av": np.mean(reward_monitor.reward_trace),
             "latency_traces": escape_latency_monitor.latency_trace,
             "latency_traces_av": np.mean(escape_latency_monitor.latency_trace)
         }
         result["reward_mse_norm"] = 1 - (result["reward_mse"] / (self.worst_case ** 2))
         result["reward_var"] = self.calc_variance(reward_monitor.reward_trace, result["reward_trace_av"])
+        result["reward_error"] = 1 - (np.sqrt(result["reward_mse"]) / self.worst_case)
 
         # clear keras session (for performance)
         K.clear_session()
