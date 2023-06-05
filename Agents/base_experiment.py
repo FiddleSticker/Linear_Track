@@ -14,8 +14,8 @@ class Experiment(ABC):
         self.demo_scene = demo_scene
         self.length = length
         self.trials = trials
-        self.reward = 1000
-        self.penalty = 1
+        self.reward = 10
+        self.penalty = 0.1
         self.max_steps = self.length ** 2  # 30
         self.target = self.reward - self.penalty * (2 * self.length - 3)
         self.worst_case = np.abs(self.target - self.penalty * (-self.max_steps))  # maximum difference to target

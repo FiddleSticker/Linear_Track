@@ -1,3 +1,4 @@
+# Basic imports
 import os
 import pickle
 import matplotlib.pyplot as plt
@@ -6,24 +7,25 @@ import numpy as np
 import constants as c
 
 
-agents = ["rand_f_s", "ffn_s", "rnn"]
-labels = "4,6,8".split(",")
+agents = ["Random", "Feed Forward", "Recurrent"]
+paths = ["ffn_linear_track_1x{}_rand.pkl", "ffn_linear_track_1x{}.pkl", "rnn_linear_track_1x{}.pkl"]
+labels = "4,6,8,16".split(",")
 
 # Reading Data
 data = {}
-for agent in agents:
+for agent, path in zip(agents, paths):
     data[agent] = {"y": [], "y_err": []}
     for i in labels:
         try:
-            path = os.path.join(c.PATH_DATA, f"{agent}_linear_track_1x{i}.pkl")
-            agent_data = pickle.load(open(path, 'rb'))
+            data_path = os.path.join(c.PATH_DATA, path.format(i))
+            agent_data = pickle.load(open(data_path, 'rb'))
             agent_data: dict
         except Exception as e:
             print("ERROR LOADING DATA")
             print(e)
 
         data[agent]["y"].append(agent_data["reward_mse_norm_avg"])
-        data[agent]["y_err"].append(agent_data["reward_var_avg"] / np.sqrt(100*10))
+        data[agent]["y_err"].append(np.sqrt(agent_data["reward_var_avg"]) / np.sqrt(100*10))
 
 # Plotting Data
 x = np.arange(len(labels))
@@ -34,19 +36,17 @@ for i, agent in enumerate(agents):
     y = data[agent]["y"]
     y_err = data[agent]["y_err"]
     bar_pos = x - 0.3 + bar_width * i
-    rnn_bars = ax.bar(bar_pos, y, bar_width, yerr=y_err, label=agent)
-# fnn_bars = ax.bar(x - bar_width/2, ffn_mse_norm_avg, bar_width, yerr=ffn_sem, label="Feed Forward")
+    bars = ax.bar(bar_pos, y, bar_width, yerr=y_err, label=agent)
 
 ax.set_xlabel("Track Length")
-ax.set_ylabel('Trail Reward')
+ax.set_ylabel('Trial Reward')
 ax.yaxis.grid(True, linestyle='--', linewidth=0.5)
 ax.set_title('Performance by agent and track length')
 ax.set_xticks(x)
 ax.set_xticklabels(labels)
-ax.set_ylim(0, 1.1)
-ax.legend()
+ax.legend(loc=2, prop={"size": 7})
 
 fig.tight_layout()
-fig.savefig('HDKJSKkjkjhjkLA.png', dpi=fig.dpi)
+fig.savefig('performances_4_16.png', dpi=fig.dpi)
 
 # plt.show()
