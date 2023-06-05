@@ -4,8 +4,8 @@ import numpy as np
 
 import constants as c
 
-paths = [os.path.join(c.PATH_DATA, f"rnn_linear_track_1x16_{i}.pkl") for i in [3]]
-new_dict_path = os.path.join(c.PATH_DATA, f"rnn_linear_track_1x16.pkl")
+paths = [os.path.join(c.PATH_DATA, f"rnn_8_{i}.pkl") for i in range(1,4)]
+new_dict_path = os.path.join(c.PATH_DATA, f"rnn_8.pkl")
 new_dict = {}
 
 for path in paths:
@@ -28,7 +28,8 @@ for path in paths:
 # re-calculating averages
 new_dict_avg = {}
 for key, item in new_dict.items():
-    new_dict_avg[f"{key}_avg"] = np.mean(item)
+    if key != "trajectories":
+        new_dict_avg[f"{key}_avg"] = np.mean(item)
 new_dict.update(new_dict_avg)
 
 try:

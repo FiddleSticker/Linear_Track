@@ -7,9 +7,9 @@ import numpy as np
 import constants as c
 
 
-agents = ["Random", "Feed Forward", "Recurrent"]
-paths = ["ffn_linear_track_1x{}_rand.pkl", "ffn_linear_track_1x{}.pkl", "rnn_linear_track_1x{}.pkl"]
-labels = "4,6,8,16".split(",")
+agents = ["Random", "Feed Forward", "LSTM"]
+paths = ["ffn_rand_{}.pkl", "ffn_{}.pkl", "rnn_{}.pkl"]
+labels = "4,6,8".split(",")
 
 # Reading Data
 data = {}
@@ -25,7 +25,7 @@ for agent, path in zip(agents, paths):
             print(e)
 
         data[agent]["y"].append(agent_data["reward_mse_norm_avg"])
-        data[agent]["y_err"].append(np.sqrt(agent_data["reward_var_avg"]) / np.sqrt(100*10))
+        data[agent]["y_err"].append(np.sqrt(agent_data["reward_var_avg"]) / np.sqrt(10))
 
 # Plotting Data
 x = np.arange(len(labels))
@@ -47,6 +47,6 @@ ax.set_xticklabels(labels)
 ax.legend(loc=2, prop={"size": 7})
 
 fig.tight_layout()
-fig.savefig('performances_4_16.png', dpi=fig.dpi)
+fig.savefig('performances_4_8.png', dpi=fig.dpi)
 
 # plt.show()

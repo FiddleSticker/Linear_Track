@@ -108,11 +108,14 @@ class FFNExperiment(Experiment):
             "reward_trace": reward_monitor.reward_trace,
             "reward_trace_av": np.mean(reward_monitor.reward_trace),
             "latency_traces": escape_latency_monitor.latency_trace,
-            "latency_traces_av": np.mean(escape_latency_monitor.latency_trace)
+            "latency_traces_av": np.mean(escape_latency_monitor.latency_trace),
+            "trajectories": self.trajectories
         }
         result["reward_mse_norm"] = 1 - (result["reward_mse"] / (self.worst_case ** 2))
         result["reward_var"] = self.calc_variance(reward_monitor.reward_trace, result["reward_trace_av"])
         result["reward_error"] = 1 - (np.sqrt(result["reward_mse"]) / self.worst_case)
+
+        self.trajectories = []
 
         # clear keras session (for performance)
         K.clear_session()
@@ -121,7 +124,7 @@ class FFNExperiment(Experiment):
         # modules['world'].stopBlender()
 
         # and also stop visualization
-        if self._visual_output:
-            main_window.close()
+        # if self._visual_output:
+        #     main_window.close()
 
         return result

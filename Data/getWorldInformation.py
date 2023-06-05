@@ -13,8 +13,7 @@ from cobel.observations.image_observations import ImageObservationBaseline
 os.environ['BLENDER_EXECUTABLE_PATH'] = "C:/Users/wafor/Desktop/blender-2.79b-windows64/blender.exe"
 
 if __name__ == '__main__':
-    demo_scene = "C:/Users/wafor/AppData/Local/Programs/Python/Python39/Lib/site-packages" + \
-                 "/cobel/environments/environments_blender/linear_track_1x16.blend"
+    demo_scene = "C:/Users/wafor/Desktop/Transfer/cobel_saves/environments_blender/linear_track_1x4.blend"
 
     path = os.path.dirname(os.path.abspath(__file__))
     info_path = os.path.split(demo_scene)[-1].split(".")[0]

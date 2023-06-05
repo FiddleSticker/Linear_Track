@@ -16,7 +16,7 @@ class Experiment(ABC):
         self.trials = trials
         self.reward = 10
         self.penalty = 0.1
-        self.max_steps = self.length ** 2  # 30
+        self.max_steps = self.length ** 2
         self.target = self.reward - self.penalty * (2 * self.length - 3)
         self.worst_case = np.abs(self.target - self.penalty * (-self.max_steps))  # maximum difference to target
         self.max_min = self.penalty * self.max_steps
@@ -25,6 +25,7 @@ class Experiment(ABC):
         self.illuminate = illuminate
         self._visual_output = False
         self.trajectory = []
+        self.trajectories = []
 
         self.modules = {}
         self._reached_end = False
@@ -42,10 +43,10 @@ class Experiment(ABC):
         Note: this function has to be adopted to the current experimental design.
 
         | **Args**
-        | values:                       A dict of values that are transferred from the OAI module to the reward function.
+        | values:                      A dict of values that are transferred from the OAI module to the reward function.
         This is flexible enough to accommodate for different experimental setups.
         """
-        reward = -self.penalty  # the standard reward for each step taken is negative, making the agent seek short routes
+        reward = -self.penalty  # standard reward for each step taken is negative, making the agent seek short routes
         end_trial = False
 
         self.trajectory.append(values['current_node'].index)
@@ -62,6 +63,7 @@ class Experiment(ABC):
 
     def reset_world(self, world):
         self._reached_end = False
+        self.trajectories.append(self.trajectory)
         self.trajectory = []
 
 
@@ -92,7 +94,8 @@ class Experiment(ABC):
         # calculating averages
         results_avg = {}
         for key, item in results.items():
-            results_avg[f"{key}_avg"] = np.mean(item)
+            if key != "trajectories":
+                results_avg[f"{key}_avg"] = np.mean(item)
         results.update(results_avg)
         results["target"] = self.target
         results["worst_case"] = self.worst_case
