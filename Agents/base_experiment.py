@@ -24,7 +24,7 @@ class Experiment(ABC):
 
         self.illuminate = illuminate
         self._visual_output = False
-        self.trajectory = []
+        self.trajectory = [0]
         self.trajectories = []
 
         self.modules = {}
