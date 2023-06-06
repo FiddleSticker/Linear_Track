@@ -13,11 +13,9 @@ from cobel.observations.image_observations import ImageObservationBaseline
 os.environ['BLENDER_EXECUTABLE_PATH'] = "C:/Users/wafor/Desktop/blender-2.79b-windows64/blender.exe"
 
 if __name__ == '__main__':
-    demo_scene = "C:/Users/wafor/Desktop/cobel_saves/environments_blender/linear_track_1x4.blend"
-    # demo_scene = "C:/Users/wafor/Desktop/Bachelorarbeit/Cobel/CoBeL-RL/cobel/environments/environments_blender/simple_grid_graph_maze.blend"
-
-    path = os.path.dirname(os.path.abspath(__file__))
-    output_path = "C:/Users/wafor/Desktop/linear_track_4"
+    # Change paths and don't forget to change the goal/start nodes!!!
+    demo_scene = "C:/Users/wafor/Desktop/cobel_saves/environments_blender/linear_track_1x16.blend"
+    output_path = "C:/Users/wafor/Desktop/linear_track_16"
 
     mainWindow = qg.GraphicsLayoutWidget(title='Demo: DQN')
     mainWindow.show()
@@ -26,7 +24,7 @@ if __name__ == '__main__':
     modules = dict()
     modules['world'] = FrontendBlenderInterface(demo_scene)
     modules['observation'] = ImageObservationBaseline(modules['world'], mainWindow, True)
-    modules['spatial_representation'] = ManualTopologyGraphNoRotation(modules, {'start_nodes': [0], 'goal_nodes': [3],
+    modules['spatial_representation'] = ManualTopologyGraphNoRotation(modules, {'start_nodes': [0], 'goal_nodes': [15],
                                                                                 'clique_size': 2})
     modules['spatial_representation'].set_visual_debugging(True, mainWindow)
 
