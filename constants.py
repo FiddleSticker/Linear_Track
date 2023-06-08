@@ -10,6 +10,7 @@ PATH_TOOLS = os.path.join(PATH_ROOT, "Tools")
 # Default Values
 RUNS_DEFAULT = 1
 TRIALS_DEFAULT = 500
+MEMORY_DEFAULT = True
 
 # Results keys
 

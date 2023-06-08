@@ -81,7 +81,7 @@ class FFNExperiment(Experiment):
 
         # prepare custom_callbacks
         custom_callbacks = {'on_trial_end': [reward_monitor.update, escape_latency_monitor.update,
-                                             lambda _: self.reset_world(modules["world"])]}
+                                             lambda _: self.reset_world()]}
 
         # build model
         # model = SequentialKerasNetwork(
@@ -89,8 +89,8 @@ class FFNExperiment(Experiment):
         model = self.build_model(modules['rl_interface'].observation_space.shape, 2)
 
         # initialize RL agent
-        # rl_agent = DQNAgentBaseline(modules['rl_interface'], 1000000, 0.3, model, custom_callbacks=custom_callbacks)
-        rl_agent = DQNAgentBaseline(modules['rl_interface'], 1000000, 1, model, custom_callbacks=custom_callbacks)
+        rl_agent = DQNAgentBaseline(modules['rl_interface'], 1000000, 0.3, model, custom_callbacks=custom_callbacks)
+        # rl_agent = DQNAgentBaseline(modules['rl_interface'], 1000000, 1, model, custom_callbacks=custom_callbacks)
 
         # eventually, allow the OAI class to access the robotic agent class
         modules['rl_interface'].rl_agent = rl_agent

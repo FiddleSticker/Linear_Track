@@ -9,20 +9,28 @@ import constants as c
 
 
 class Experiment(ABC):
-    def __init__(self, demo_scene: str, length: int, trials: int = c.TRIALS_DEFAULT, illuminate: bool = False):
+    def __init__(self, demo_scene: str, length: int, trials: int = c.TRIALS_DEFAULT, memory: bool = True):
         # Experiment Parameters
         self.demo_scene = demo_scene
+        self.memory = memory
         self.length = length
         self.trials = trials
         self.reward = 10
         self.penalty = 0.1
-        self.max_steps = self.length ** 2
-        self.target = self.reward - self.penalty * (2 * self.length - 3)
-        self.worst_case = np.abs(self.target - self.penalty * (-self.max_steps))  # maximum difference to target
-        self.max_min = self.penalty * self.max_steps
-        self.max_diff = np.abs(self.target - self.penalty * (-self.max_steps))
 
-        self.illuminate = illuminate
+        if memory:
+            self.max_steps = self.length ** 2
+            self.target = self.reward - self.penalty * (2 * self.length - 3)
+            self.worst_case = np.abs(self.target - self.penalty * (-self.max_steps))  # maximum difference to target
+            self.max_min = self.penalty * self.max_steps
+            self.max_diff = np.abs(self.target - self.penalty * (-self.max_steps))
+        else:
+            self.max_steps = self.length * 2
+            self.target = self.reward - self.penalty * (self.length - 2)
+            self.worst_case = np.abs(self.target - self.penalty * (-self.max_steps))  # maximum difference to target
+            self.max_min = self.penalty * self.max_steps
+            self.max_diff = np.abs(self.target - self.penalty * (-self.max_steps))
+
         self._visual_output = False
         self.trajectory = [0]  # Todo add callback on trial begin to add first state to trajectory
         self.trajectories = []
@@ -52,16 +60,19 @@ class Experiment(ABC):
         self.trajectory.append(values['current_node'].index)
 
         if values['current_node'].goal_node:
-            self._reached_end = True
+            if self.memory:
+                self._reached_end = True
+            else:
+                reward = self.reward
+                end_trial = True
 
         if self._reached_end and values['current_node'].start_node:
             reward = self.reward
             end_trial = True
-            # self.reset_world(values["modules"]["world"])
 
         return reward, end_trial
 
-    def reset_world(self, world):
+    def reset_world(self):
         self._reached_end = False
         self.trajectories.append(self.trajectory)
         self.trajectory = [0]

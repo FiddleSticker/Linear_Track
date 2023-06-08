@@ -18,7 +18,7 @@ if __name__ == "__main__":
     parser.add_argument("-p", "--path", type=str, metavar="", default=None,
                         help="path to which experiment results are written")
     parser.add_argument("--memory", default=True, action="store_true",
-                        help="run memory experiment (Default = True)")
+                        help=f"run memory experiment (Default = {c.MEMORY_DEFAULT})")
     parser.add_argument("--no-memory", dest="memory", action="store_false",
                         help="run simple experiment")
     args = parser.parse_args()
@@ -27,6 +27,7 @@ if __name__ == "__main__":
     length = args.length
     runs = args.runs
     trials = args.trials
+    memory = args.memory
     save_path = args.path
 
     from Agents.rnn_experiment import RNNExperiment
@@ -34,10 +35,10 @@ if __name__ == "__main__":
 
     if network in ["random", "ffn"]:
         demo_scene = os.path.join(c.PATH_DATA, f"linear_track_{length}")
-        exp = FFNExperiment(demo_scene, length, trials=trials)
+        exp = FFNExperiment(demo_scene, length, trials=trials, memory=memory)
     elif network in ["rnn", "lstm"]:
         demo_scene = os.path.join(c.PATH_DATA, f"linear_track_{length}")
-        exp = RNNExperiment(demo_scene, length, trials=trials)
+        exp = RNNExperiment(demo_scene, length, trials=trials, memory=memory)
     else:
         raise TypeError("No network type given")
 

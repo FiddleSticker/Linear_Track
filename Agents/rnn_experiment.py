@@ -86,7 +86,7 @@ class RNNExperiment(Experiment):
 
         # prepare custom_callbacks
         custom_callbacks = {'on_trial_end': [reward_monitor.update, escape_latency_monitor.update,
-                                             lambda _: self.reset_world(modules["world"])]}
+                                             lambda _: self.reset_world()]}
 
         # build model
         model = SequentialKerasNetwork(
