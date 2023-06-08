@@ -8,8 +8,8 @@ import constants as c
 
 
 agents = ["Random", "Feed Forward", "LSTM"]
-paths = ["ffn_rand_{}.pkl", "ffn_{}.pkl", "rnn_{}.pkl"]
-labels = "4,6,8".split(",")
+paths = ["ffn_rand_{}.pkl", "ffn_{}.pkl", "lstm_{}.pkl"]
+labels = "4,5,6,7".split(",")
 
 # Reading Data
 data = {}

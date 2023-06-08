@@ -9,8 +9,8 @@ import constants as c
 
 
 agents = ["Random", "Feed Forward", "LSTM"]
-paths = ["ffn_rand_{}.pkl", "ffn_{}.pkl", "rnn_{}.pkl"]
-labels = "4,6,8".split(",")
+paths = ["ffn_rand_{}.pkl", "ffn_{}.pkl", "lstm_{}.pkl"]
+labels = "4,5,6,7,8".split(",")
 
 # Reading Data
 data = {}
@@ -32,7 +32,7 @@ for agent, path in zip(agents, paths):
         # Calculate average on the fly
         reward_traces_avg_online = []
         for idx, _ in enumerate(reward_traces_norm):
-            value = reward_traces_norm[:idx+1].sum() / (idx+1)
+            value = reward_traces_norm[max(0, idx - 20):idx+1].mean()
             reward_traces_avg_online.append(value)
 
         data[agent]["reward_traces"].append(reward_traces_norm)
@@ -40,38 +40,23 @@ for agent, path in zip(agents, paths):
 
 
 # Plotting Data
-x = np.arange(len(labels))
+fig, axs = plt.subplots(nrows=2, ncols=np.floor(len(labels)/2).astype(int), sharex="all", sharey="all")
 
-fig, axs = plt.subplots(nrows=1, ncols=3, sharex="all", sharey="all")
-
-
-for ax, (idx, label) in zip(axs, enumerate(labels)):
+for ax, (idx, label) in zip(axs.flatten(), enumerate(labels)):
     for agent in agents:
         online_avg = data[agent]["reward_traces_averages"][idx]
         line = ax.plot(online_avg, label=agent)
     ax.yaxis.grid(True, linestyle='--', linewidth=0.5)
-
-
-
-# fig, axs = plt.subplots(1, 3)
-# for agent in agents:
-#     for ax, online_avg in zip(axs, data[agent]["reward_traces_averages"]):
-#         line = ax.plot(online_avg)
-#
-#         ax.set_xlabel("Track Length")
-#         ax.set_ylabel('Trial Reward')
-#         ax.yaxis.grid(True, linestyle='--', linewidth=0.5)
-        # ax.set_title('Performance by agent over trials')
-# ax.set_xticks(x)
-# ax.set_xticklabels(labels)
-# fig.set_xlabel()
+    ax.set_xlabel(f"L = {label}")
+    ax.set_yticks(np.linspace(0, 1, 11))
+    [l.set_visible(False) for (i, l) in enumerate(ax.yaxis.get_ticklabels()) if i % 2 != 0]
 
 fig.supxlabel("Trials")
 fig.supylabel("Average reward")
-handles, labels = axs[-1].get_legend_handles_labels()
-fig.legend(handles, labels, bbox_to_anchor=(0.5, 0.05), loc="lower center", ncol=len(agents))
+handles, labels = axs[-1, -1].get_legend_handles_labels()
+fig.legend(handles, labels, bbox_to_anchor=(0.5, 1), loc="upper center", ncol=len(agents))
 fig.tight_layout()
-fig.subplots_adjust(bottom=0.2)
-fig.savefig('lolopopo.png', dpi=fig.dpi)
+fig.subplots_adjust(top=0.925, bottom=0.125)
+fig.savefig('reward_over_trial.png', dpi=fig.dpi)
 
 # plt.show()

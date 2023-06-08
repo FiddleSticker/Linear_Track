@@ -12,8 +12,7 @@ from tensorflow.keras.layers import Dense, TimeDistributed, Flatten, LSTM
 
 from .base_experiment import Experiment
 # framework imports
-from cobel.frontends.frontends_blender import ImageInterface
-
+from Tools.frontends_blender import ImageInterface
 from cobel.spatial_representations.topology_graphs.manual_topology_graph_no_rotation import \
     ManualTopologyGraphNoRotation
 

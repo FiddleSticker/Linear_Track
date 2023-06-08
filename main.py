@@ -33,10 +33,10 @@ if __name__ == "__main__":
     from Agents.ffn_experiment import FFNExperiment
 
     if network in ["random", "ffn"]:
-        demo_scene = os.path.join(c.PATH_DATA, f"linear_track_1x{length}")
+        demo_scene = os.path.join(c.PATH_DATA, f"linear_track_{length}")
         exp = FFNExperiment(demo_scene, length, trials=trials)
     elif network in ["rnn", "lstm"]:
-        demo_scene = os.path.join(c.PATH_DATA, f"linear_track_1x{length}")
+        demo_scene = os.path.join(c.PATH_DATA, f"linear_track_{length}")
         exp = RNNExperiment(demo_scene, length, trials=trials)
     else:
         raise TypeError("No network type given")
@@ -46,7 +46,7 @@ if __name__ == "__main__":
     print(exp.run(runs))  # Runs experiment and prints result
 
     if not save_path:
-        save_path = f"{network}_linear_track_1x{length}.pkl"
+        save_path = f"{network}_linear_track_{length}.pkl"
     print(exp.save(os.path.join(c.PATH_DATA, save_path)))
 
     print(f"--- {time.time() - start_time} seconds ---")

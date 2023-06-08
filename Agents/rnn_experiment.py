@@ -13,7 +13,7 @@ from tensorflow.keras.layers import Dense, TimeDistributed, Flatten, LSTM
 from .base_experiment import Experiment
 # framework imports
 from cobel.networks.network_tensorflow import SequentialKerasNetwork
-from cobel.frontends.frontends_blender import FrontendBlenderInterface, ImageInterface
+from Tools.frontends_blender import ImageInterface
 from cobel.spatial_representations.topology_graphs.manual_topology_graph_no_rotation import \
     ManualTopologyGraphNoRotation
 
@@ -117,8 +117,6 @@ class RNNExperiment(Experiment):
         result["reward_mse_norm"] = 1 - (result["reward_mse"] / (self.worst_case ** 2))
         result["reward_var"] = self.calc_variance(reward_monitor.reward_trace, result["reward_trace_av"])
         result["reward_error"] = 1 - (np.sqrt(result["reward_mse"]) / self.worst_case)
-
-        self.trajectories = []
 
         # Todo
         # outputs = [layer.output for layer in model.model.layers]

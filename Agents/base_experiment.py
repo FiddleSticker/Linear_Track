@@ -24,7 +24,7 @@ class Experiment(ABC):
 
         self.illuminate = illuminate
         self._visual_output = False
-        self.trajectory = [0]
+        self.trajectory = [0]  # Todo add callback on trial begin to add first state to trajectory
         self.trajectories = []
 
         self.modules = {}
@@ -57,14 +57,14 @@ class Experiment(ABC):
         if self._reached_end and values['current_node'].start_node:
             reward = self.reward
             end_trial = True
-            self.reset_world(values["modules"]["world"])
+            # self.reset_world(values["modules"]["world"])
 
         return reward, end_trial
 
     def reset_world(self, world):
         self._reached_end = False
         self.trajectories.append(self.trajectory)
-        self.trajectory = []
+        self.trajectory = [0]
 
 
     @staticmethod
@@ -82,6 +82,7 @@ class Experiment(ABC):
         for i in range(runs):
             print(f"Run {i+1}/{runs}")
             result = self.single_run()
+            self.trajectories = []
 
             # recording results from each single run
             for key, item in result.items():
