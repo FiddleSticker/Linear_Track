@@ -26,8 +26,9 @@ tf.compat.v1.experimental.output_all_intermediates(True)
 
 
 class FFNExperiment(Experiment):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, demo_scene: str, length: int, trials: int = c.TRIALS_DEFAULT, memory: bool = True, epsilon=0.3):
+        super().__init__(demo_scene, length, trials=trials, memory=memory)
+        self.epsilon = epsilon
 
     def build_model(self, input_shape, output_units):
         """
@@ -84,13 +85,11 @@ class FFNExperiment(Experiment):
                                              lambda _: self.reset_world()]}
 
         # build model
-        # model = SequentialKerasNetwork(
-        #     self.build_model((max_steps,) + modules['rl_interface'].observation_space.shape, 2))
         model = self.build_model(modules['rl_interface'].observation_space.shape, 2)
 
         # initialize RL agent
-        rl_agent = DQNAgentBaseline(modules['rl_interface'], 1000000, 0.3, model, custom_callbacks=custom_callbacks)
-        # rl_agent = DQNAgentBaseline(modules['rl_interface'], 1000000, 1, model, custom_callbacks=custom_callbacks)
+        rl_agent = DQNAgentBaseline(modules['rl_interface'],
+                                    1000000, self.epsilon, model, custom_callbacks=custom_callbacks)
 
         # eventually, allow the OAI class to access the robotic agent class
         modules['rl_interface'].rl_agent = rl_agent

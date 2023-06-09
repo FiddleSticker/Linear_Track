@@ -26,8 +26,8 @@ tf.compat.v1.experimental.output_all_intermediates(True)
 
 
 class RNNExperiment(Experiment):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, demo_scene: str, length: int, trials: int = c.TRIALS_DEFAULT, memory: bool = True):
+        super().__init__(demo_scene, length, trials=trials, memory=memory)
 
     def build_model(self, input_shape, output_units):
         """

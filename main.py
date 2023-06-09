@@ -33,7 +33,10 @@ if __name__ == "__main__":
     from Agents.rnn_experiment import RNNExperiment
     from Agents.ffn_experiment import FFNExperiment
 
-    if network in ["random", "ffn"]:
+    if network == "random":
+        demo_scene = os.path.join(c.PATH_DATA, f"linear_track_{length}")
+        exp = FFNExperiment(demo_scene, length, trials=trials, memory=memory, epsilon=1)
+    elif network == "ffn":
         demo_scene = os.path.join(c.PATH_DATA, f"linear_track_{length}")
         exp = FFNExperiment(demo_scene, length, trials=trials, memory=memory)
     elif network in ["rnn", "lstm"]:
