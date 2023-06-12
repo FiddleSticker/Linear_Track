@@ -1,1 +1,2 @@
 from . import frontends_blender
+from . import test_trajectory

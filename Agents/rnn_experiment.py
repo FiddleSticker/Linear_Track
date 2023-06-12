@@ -1,16 +1,18 @@
 # Basic imports
+import os
 import numpy as np
 import pyqtgraph as qg
 import tensorflow as tf
-
-import constants as c
 
 from tensorflow.keras import backend as K
 # from tensorflow.compat.v1.experimental import output_all_intermediates  # 2.11
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, TimeDistributed, Flatten, LSTM
 
+import constants as c
 from .base_experiment import Experiment
+from Tools.test_trajectory import generate_trajectory
+
 # framework imports
 from cobel.networks.network_tensorflow import SequentialKerasNetwork
 from Tools.frontends_blender import ImageInterface
@@ -104,6 +106,7 @@ class RNNExperiment(Experiment):
 
         # let the agent learn, with extremely large number of allowed maximum steps
         rl_agent.train(self.trials, self.max_steps)
+        # rl_agent.test(1, self.max_steps)
 
         # Recording results
         result = {
@@ -122,9 +125,14 @@ class RNNExperiment(Experiment):
         # outputs = [layer.output for layer in model.model.layers]
         # functors = [tf.keras.backend.function([model.model.input, tf.keras.backend.learning_phase()], [out])
         #             for out in outputs]
-        #
-        # # self.model_online.predict_on_batch(padded_state)[0, self.current_step]
-        # images = np.load(os.path.join(c.PATH_DATA, "linear_track_1x4", "ideal_trajectory.npy"))
+        # outputs = [layer.output for layer in rl_agent.model_online.model.layers]
+        # functors = [
+        #     tf.keras.backend.function([rl_agent.model_online.model.input, tf.keras.backend.learning_phase()], [out])
+        #     for out in outputs]
+
+        # self.model_online.predict_on_batch(padded_state)[0, self.current_step]
+
+        # images = generate_trajectory("linear_track_4/images.npy", [0, 1, 2, 3, 2, 1, 0], 16)
         # layer_outs = [func(images) for func in functors]
 
         # clear keras session (for performance)

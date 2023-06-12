@@ -9,8 +9,8 @@ import constants as c
 
 
 agents = ["Random", "Feed Forward", "LSTM"]
-paths = ["ffn_rand_{}.pkl", "ffn_{}.pkl", "lstm_{}.pkl"]
-labels = "4,5,6,7,8".split(",")
+paths = ["rand_{}.pkl", "ffn_{}.pkl", "lstm_{}.pkl"]
+labels = "4,5,6,7,8,10,12,14".split(",")
 
 # Reading Data
 data = {}
@@ -48,15 +48,17 @@ for ax, (idx, label) in zip(axs.flatten(), enumerate(labels)):
         line = ax.plot(online_avg, label=agent)
     ax.yaxis.grid(True, linestyle='--', linewidth=0.5)
     ax.set_xlabel(f"L = {label}")
+    ax.set_xticks(np.linspace(0, 500, 5))
+    [l.set_visible(False) for (i, l) in enumerate(ax.xaxis.get_ticklabels()) if i % 2 != 0]
     ax.set_yticks(np.linspace(0, 1, 11))
     [l.set_visible(False) for (i, l) in enumerate(ax.yaxis.get_ticklabels()) if i % 2 != 0]
 
 fig.supxlabel("Trials")
 fig.supylabel("Average reward")
 handles, labels = axs[-1, -1].get_legend_handles_labels()
-fig.legend(handles, labels, bbox_to_anchor=(0.5, 1), loc="upper center", ncol=len(agents))
+fig.legend(handles, labels, bbox_to_anchor=(0.525, 1), loc="upper center", ncol=len(agents))
 fig.tight_layout()
-fig.subplots_adjust(top=0.925, bottom=0.125)
-fig.savefig('reward_over_trial.png', dpi=fig.dpi)
+fig.subplots_adjust(top=0.925, bottom=0.15, left=0.11)
+fig.savefig('reward_over_trial_14.png', dpi=fig.dpi)
 
 # plt.show()

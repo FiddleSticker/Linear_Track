@@ -21,15 +21,13 @@ class Experiment(ABC):
         if memory:
             self.max_steps = self.length ** 2
             self.target = self.reward - self.penalty * (2 * self.length - 3)
-            self.worst_case = np.abs(self.target - self.penalty * (-self.max_steps))  # maximum difference to target
-            self.max_min = self.penalty * self.max_steps
-            self.max_diff = np.abs(self.target - self.penalty * (-self.max_steps))
         else:
-            self.max_steps = self.length * 2
+            self.max_steps = self.length ** 2
             self.target = self.reward - self.penalty * (self.length - 2)
-            self.worst_case = np.abs(self.target - self.penalty * (-self.max_steps))  # maximum difference to target
-            self.max_min = self.penalty * self.max_steps
-            self.max_diff = np.abs(self.target - self.penalty * (-self.max_steps))
+
+        self.worst_case = np.abs(self.target - self.penalty * (-self.max_steps))  # maximum difference to target
+        self.max_min = self.penalty * self.max_steps
+        self.max_diff = np.abs(self.target - self.penalty * (-self.max_steps))
 
         self._visual_output = False
         self.trajectory = [0]  # Todo add callback on trial begin to add first state to trajectory
