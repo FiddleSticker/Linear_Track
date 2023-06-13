@@ -16,10 +16,11 @@ from Tools.frontends_blender import ImageInterface
 from cobel.spatial_representations.topology_graphs.manual_topology_graph_no_rotation import \
     ManualTopologyGraphNoRotation
 
+from cobel.networks.network_tensorflow import SequentialKerasNetwork
 from cobel.observations.image_observations import ImageObservationBaseline
 from cobel.interfaces.baseline import InterfaceBaseline
 from cobel.analysis.rl_monitoring.rl_performance_monitors import RewardMonitor, EscapeLatencyMonitor
-from cobel.agents.dqn import SimpleDQN
+from cobel.agents.drqn import SimpleDQN
 from cobel.agents.keras_rl.dqn import DQNAgentBaseline
 
 tf.compat.v1.experimental.output_all_intermediates(True)
@@ -45,12 +46,13 @@ class FFNExperiment(Experiment):
         """
         units = 64
         model = Sequential()
-        model.add(Flatten(input_shape=(1,) + input_shape))
+        model.add(Dense(units=units, input_shape=input_shape, activation='tanh'))
         model.add(Dense(units=units, activation='tanh'))
         model.add(Dense(units=units, activation='tanh'))
-        model.add(Dense(units=units, activation='tanh'))
+        model.add(TimeDistributed(Flatten()))
         model.add(Dense(units=units, activation='tanh'))
         model.add(Dense(units=output_units, activation='linear', name='output'))
+        model.compile(optimizer='adam', loss='mse', metrics=['accuracy'])
 
         return model
 
@@ -76,6 +78,8 @@ class FFNExperiment(Experiment):
         modules['spatial_representation'].set_visual_debugging(self._visual_output, main_window)
         modules['rl_interface'] = InterfaceBaseline(modules, self._visual_output, self.reward_callback)
 
+        time_horizon = self.max_steps  # how many steps are given to the network
+
         # initialize monitors
         reward_monitor = RewardMonitor(self.trials, main_window, self._visual_output, [-self.max_steps, self.reward])
         escape_latency_monitor = EscapeLatencyMonitor(self.trials, self.max_steps, main_window, self._visual_output)
@@ -85,11 +89,14 @@ class FFNExperiment(Experiment):
                                              lambda _: self.reset_world()]}
 
         # build model
-        model = self.build_model(modules['rl_interface'].observation_space.shape, 2)
+        # model = self.build_model((self.max_steps,) + modules['rl_interface'].observation_space.shape, 2)
+
+        model = SequentialKerasNetwork(
+            self.build_model((time_horizon,) + modules['rl_interface'].observation_space.shape, 2))
 
         # initialize RL agent
-        rl_agent = DQNAgentBaseline(modules['rl_interface'],
-                                    1000000, self.epsilon, model, custom_callbacks=custom_callbacks)
+        rl_agent = SimpleDQN(modules['rl_interface'], 0.3, model=model, time_horizon=time_horizon,
+                             custom_callbacks=custom_callbacks)
 
         # eventually, allow the OAI class to access the robotic agent class
         modules['rl_interface'].rl_agent = rl_agent
@@ -98,7 +105,8 @@ class FFNExperiment(Experiment):
         modules['spatial_representation'].rl_agent = rl_agent
 
         # let the agent learn, with extremely large number of allowed maximum steps
-        rl_agent.train(self.trials, self.max_steps)
+        rl_agent.train(self.trials - 1, self.max_steps)
+        rl_agent.test(1, self.max_steps)
 
         # Recording results
         result = {

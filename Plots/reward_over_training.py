@@ -11,6 +11,7 @@ import constants as c
 agents = ["Random", "Feed Forward", "LSTM"]
 paths = ["rand_{}.pkl", "ffn_{}.pkl", "lstm_{}.pkl"]
 labels = "4,5,6,7,8,10,12,14".split(",")
+trials = 250
 
 # Reading Data
 data = {}
@@ -28,6 +29,7 @@ for agent, path in zip(agents, paths):
         reward_traces = pd.DataFrame(agent_data[c.REWARD_TRACE])
         reward_traces_norm = 1 - ((agent_data[c.TARGET]-reward_traces).abs() / agent_data[c.MAX_DIFF])
         reward_traces_norm = reward_traces_norm.mean()
+        reward_traces_norm = reward_traces_norm[:trials]
 
         # Calculate average on the fly
         reward_traces_avg_online = []
@@ -44,12 +46,17 @@ fig, axs = plt.subplots(nrows=2, ncols=np.floor(len(labels)/2).astype(int), shar
 
 for ax, (idx, label) in zip(axs.flatten(), enumerate(labels)):
     for agent in agents:
-        online_avg = data[agent]["reward_traces_averages"][idx]
+        online_avg = np.array(data[agent]["reward_traces_averages"][idx])
         line = ax.plot(online_avg, label=agent)
+        # x_value_greater_0_9 = np.where(online_avg > 0.9)
+        # if x_value_greater_0_9.size > 0:
+        #     ax.axvline(x=x_value_greater_0_9[0][0], label=agent)
+
+
     ax.yaxis.grid(True, linestyle='--', linewidth=0.5)
     ax.set_xlabel(f"L = {label}")
-    ax.set_xticks(np.linspace(0, 500, 5))
-    [l.set_visible(False) for (i, l) in enumerate(ax.xaxis.get_ticklabels()) if i % 2 != 0]
+    ax.set_xticks(np.linspace(0, trials, 3))
+    # [l.set_visible(False) for (i, l) in enumerate(ax.xaxis.get_ticklabels()) if i % 2 != 0]
     ax.set_yticks(np.linspace(0, 1, 11))
     [l.set_visible(False) for (i, l) in enumerate(ax.yaxis.get_ticklabels()) if i % 2 != 0]
 
@@ -59,6 +66,6 @@ handles, labels = axs[-1, -1].get_legend_handles_labels()
 fig.legend(handles, labels, bbox_to_anchor=(0.525, 1), loc="upper center", ncol=len(agents))
 fig.tight_layout()
 fig.subplots_adjust(top=0.925, bottom=0.15, left=0.11)
-fig.savefig('reward_over_trial_14.png', dpi=fig.dpi)
+fig.savefig('reward_over_trial.png', dpi=fig.dpi)
 
 # plt.show()

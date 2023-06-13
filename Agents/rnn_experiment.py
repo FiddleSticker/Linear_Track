@@ -105,8 +105,8 @@ class RNNExperiment(Experiment):
         modules['spatial_representation'].rl_agent = rl_agent
 
         # let the agent learn, with extremely large number of allowed maximum steps
-        rl_agent.train(self.trials, self.max_steps)
-        # rl_agent.test(1, self.max_steps)
+        rl_agent.train(self.trials-1, self.max_steps)
+        rl_agent.test(1, self.max_steps)
 
         # Recording results
         result = {
