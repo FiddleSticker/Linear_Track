@@ -86,7 +86,7 @@ class FFNExperiment(Experiment):
 
         # prepare custom_callbacks
         custom_callbacks = {'on_trial_end': [reward_monitor.update, escape_latency_monitor.update,
-                                             lambda _: self.reset_world()]}
+                                             self.reset_world]}
 
         # build model
         # model = self.build_model((self.max_steps,) + modules['rl_interface'].observation_space.shape, 2)
@@ -120,8 +120,6 @@ class FFNExperiment(Experiment):
         result["reward_mse_norm"] = 1 - (result["reward_mse"] / (self.worst_case ** 2))
         result["reward_var"] = self.calc_variance(reward_monitor.reward_trace, result["reward_trace_av"])
         result["reward_error"] = 1 - (np.sqrt(result["reward_mse"]) / self.worst_case)
-
-        self.trajectories = []
 
         # clear keras session (for performance)
         K.clear_session()

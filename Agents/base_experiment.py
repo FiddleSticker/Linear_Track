@@ -1,7 +1,8 @@
 # Basic imports
-import time
 import os
 import pickle
+import time
+import datetime
 from abc import ABC
 import numpy as np
 
@@ -36,6 +37,7 @@ class Experiment(ABC):
         self.modules = {}
         self._reached_end = False
         self._cached_results = None
+        self.trial_count = 0
 
     def single_run(self) -> dict:
         raise NotImplementedError
@@ -70,7 +72,7 @@ class Experiment(ABC):
 
         return reward, end_trial
 
-    def reset_world(self):
+    def reset_world(self, values):
         self._reached_end = False
         self.trajectories.append(self.trajectory)
         self.trajectory = [0]
@@ -89,9 +91,9 @@ class Experiment(ABC):
     def run(self, runs: int = 1, wait: int = 0) -> dict:
         results = {}
         for i in range(runs):
-            print(f"Run {i+1}/{runs}")
+            print(f"--- Run {i+1}/{runs} started at: {datetime.datetime.now()} ---")
             result = self.single_run()
-            self.trajectories = []
+            self.run_over()
 
             # recording results from each single run
             for key, item in result.items():
@@ -125,3 +127,13 @@ class Experiment(ABC):
                 print(e)
 
         return ""
+
+    def trial_counter(self, values):
+        print(f"\r--- Trial:{self.trial_count}/{self.trials} ---", end="")
+        self.trial_count += 1
+
+    def run_over(self):
+        self.trajectory = [0]
+        self.trajectories = []
+        self.trial_count = 0
+

@@ -3,6 +3,8 @@ import os
 import numpy as np
 import pyqtgraph as qg
 import tensorflow as tf
+import matplotlib.pyplot as plt
+
 
 from tensorflow.keras import backend as K
 # from tensorflow.compat.v1.experimental import output_all_intermediates  # 2.11
@@ -51,7 +53,7 @@ class RNNExperiment(Experiment):
         model.add(Dense(units=units, activation='tanh'))
         model.add(TimeDistributed(Flatten()))
         model.add(LSTM(units=units, activation='tanh', return_sequences=True))
-        model.add(Dense(units=output_units, activation='linear'))
+        model.add(Dense(units=output_units, activation='linear', name='output'))
         model.compile(optimizer='adam', loss='mse', metrics=['accuracy'])
 
         # model.summary()
@@ -88,7 +90,7 @@ class RNNExperiment(Experiment):
 
         # prepare custom_callbacks
         custom_callbacks = {'on_trial_end': [reward_monitor.update, escape_latency_monitor.update,
-                                             lambda _: self.reset_world()]}
+                                             self.reset_world]}
 
         # build model
         model = SequentialKerasNetwork(
@@ -122,9 +124,6 @@ class RNNExperiment(Experiment):
         result["reward_error"] = 1 - (np.sqrt(result["reward_mse"]) / self.worst_case)
 
         # Todo
-        # outputs = [layer.output for layer in model.model.layers]
-        # functors = [tf.keras.backend.function([model.model.input, tf.keras.backend.learning_phase()], [out])
-        #             for out in outputs]
         # outputs = [layer.output for layer in rl_agent.model_online.model.layers]
         # functors = [
         #     tf.keras.backend.function([rl_agent.model_online.model.input, tf.keras.backend.learning_phase()], [out])
@@ -132,7 +131,7 @@ class RNNExperiment(Experiment):
 
         # self.model_online.predict_on_batch(padded_state)[0, self.current_step]
 
-        # images = generate_trajectory("linear_track_4/images.npy", [0, 1, 2, 3, 2, 1, 0], 16)
+        # images = generate_trajectory("linear_track_6/images.npy", [0, 0, 0, 1, 2, 3, 2, 1, 0], 36)/255
         # layer_outs = [func(images) for func in functors]
 
         # clear keras session (for performance)

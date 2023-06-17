@@ -30,6 +30,9 @@ if __name__ == "__main__":
     memory = args.memory
     save_path = args.path
 
+    start_time = time.time()
+    print(f"--- start: {datetime.datetime.now()} ---")
+
     from Agents.rnn_experiment import RNNExperiment
     from Agents.ffn_experiment import FFNExperiment
 
@@ -45,12 +48,23 @@ if __name__ == "__main__":
     else:
         raise TypeError("No network type given")
 
-    start_time = time.time()
-    print(f"--- start: {datetime.datetime.now()} ---")
     print(exp.run(runs))  # Runs experiment and prints result
 
     if not save_path:
-        save_path = f"{network}_linear_track_{length}.pkl"
+        runs_string = ""
+        if runs != c.RUNS_DEFAULT:
+            runs_string = f"_r{runs}"
+
+        trials_string = ""
+        if trials != c.TRIALS_DEFAULT:
+            trials_string = f"_t{trials}"
+
+        memory_string = ""
+        if not memory:
+            memory_string = f"_no_mem"
+
+        save_path = f"{network}{trials_string}{memory_string}_{length}.pkl"
+
     print(exp.save(os.path.join(c.PATH_DATA, save_path)))
 
     print(f"--- {time.time() - start_time} seconds ---")
