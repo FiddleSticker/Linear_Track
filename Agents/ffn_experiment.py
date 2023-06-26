@@ -47,9 +47,9 @@ class FFNExperiment(Experiment):
         units = 64
         model = Sequential()
         model.add(Dense(units=units, input_shape=input_shape, activation='tanh'))
-        model.add(Dense(units=units, activation='tanh'))
-        model.add(Dense(units=units, activation='tanh'))
         model.add(TimeDistributed(Flatten()))
+        model.add(Dense(units=units, activation='tanh'))
+        model.add(Dense(units=units, activation='tanh'))
         model.add(Dense(units=units, activation='tanh'))
         model.add(Dense(units=output_units, activation='linear', name='output'))
         model.compile(optimizer='adam', loss='mse', metrics=['accuracy'])
