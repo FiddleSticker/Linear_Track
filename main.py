@@ -8,8 +8,8 @@ import constants as c
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("network_type", type=str, choices=["random", "ffn", "rnn", "lstm"], metavar="network_type",
-                        help="type of network to run the experiment with. Available networks: random, ffn, rnn, lstm")
+    parser.add_argument("network_type", type=str, choices=["random", "fnn", "rnn", "lstm"], metavar="network_type",
+                        help="type of network to run the experiment with. Available networks: random, fnn, rnn, lstm")
     parser.add_argument("length", type=int, help="Length of the linear track")
     parser.add_argument("-r", "--runs", type=int, default=c.RUNS_DEFAULT, metavar="",
                         help=f"number of repetitions of experiment (Default = {c.RUNS_DEFAULT})")
@@ -34,14 +34,14 @@ if __name__ == "__main__":
     print(f"--- start: {datetime.datetime.now()} ---")
 
     from Agents.rnn_experiment import RNNExperiment
-    from Agents.ffn_experiment import FFNExperiment
+    from Agents.fnn_experiment import FNNExperiment
 
     if network == "random":
         demo_scene = os.path.join(c.PATH_DATA, f"linear_track_{length}")
-        exp = FFNExperiment(demo_scene, length, trials=trials, memory=memory, epsilon=1)
-    elif network == "ffn":
+        exp = FNNExperiment(demo_scene, length, trials=trials, memory=memory, epsilon=1)
+    elif network == "fnn":
         demo_scene = os.path.join(c.PATH_DATA, f"linear_track_{length}")
-        exp = FFNExperiment(demo_scene, length, trials=trials, memory=memory)
+        exp = FNNExperiment(demo_scene, length, trials=trials, memory=memory)
     elif network in ["rnn", "lstm"]:
         demo_scene = os.path.join(c.PATH_DATA, f"linear_track_{length}")
         exp = RNNExperiment(demo_scene, length, trials=trials, memory=memory)

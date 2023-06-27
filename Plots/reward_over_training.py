@@ -48,10 +48,6 @@ for ax, (idx, label) in zip(axs.flatten(), enumerate(labels)):
     for agent in agents:
         online_avg = np.array(data[agent]["reward_traces_averages"][idx])
         line = ax.plot(online_avg, label=agent)
-        # x_value_greater_0_9 = np.where(online_avg > 0.9)
-        # if x_value_greater_0_9.size > 0:
-        #     ax.axvline(x=x_value_greater_0_9[0][0], label=agent)
-
 
     ax.yaxis.grid(True, linestyle='--', linewidth=0.5)
     ax.set_xlabel(f"L = {label}")
